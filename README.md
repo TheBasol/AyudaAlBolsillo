@@ -15,7 +15,7 @@ Ayuda al Bolsillo es una aplicación web diseñada para ayudar a los usuarios a 
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tuusuario/ayuda_al_bolsillo.git
+git clone https://github.com/TheBasol/AyudaAlBolsillo.git
 
 # Navegar al directorio del proyecto
 cd ayuda_al_bolsillo
