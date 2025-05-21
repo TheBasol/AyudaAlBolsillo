@@ -120,6 +120,7 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.PresupuestoScalarFieldEnum = {
   id: 'id',
   nombre: 'nombre',
+  userId: 'userId',
   isFavorite: 'isFavorite',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -137,6 +138,41 @@ exports.Prisma.DetallesPresupuestoScalarFieldEnum = {
   presupuestoMainId: 'presupuestoMainId'
 };
 
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  password: 'password',
+  name: 'name',
+  lastName: 'lastName',
+  isActive: 'isActive',
+  hasActiveSub: 'hasActiveSub',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  planType: 'planType',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  isActive: 'isActive',
+  paymentMethod: 'paymentMethod',
+  lastPaymentDate: 'lastPaymentDate',
+  nextPaymentDate: 'nextPaymentDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SessionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -147,10 +183,27 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+exports.Role = exports.$Enums.Role = {
+  USER: 'USER',
+  ADMIN: 'ADMIN'
+};
+
+exports.PlanType = exports.$Enums.PlanType = {
+  FREE: 'FREE',
+  BASIC: 'BASIC',
+  PREMIUM: 'PREMIUM'
+};
 
 exports.Prisma.ModelName = {
   Presupuesto: 'Presupuesto',
-  DetallesPresupuesto: 'DetallesPresupuesto'
+  DetallesPresupuesto: 'DetallesPresupuesto',
+  User: 'User',
+  Subscription: 'Subscription',
+  Session: 'Session'
 };
 
 /**

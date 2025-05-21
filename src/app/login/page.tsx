@@ -1,22 +1,105 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function PageLogin() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  // Verificar si ya existe una sesión activa
+  useEffect(() => {
+    const checkActiveSession = async () => {
+      try {
+        // Primero verificar si hay datos de usuario en almacenamiento local
+        const userFromStorage = sessionStorage.getItem('user') || localStorage.getItem('user');
+        
+        if (userFromStorage) {
+          // Si encontramos datos de usuario, verificar con el servidor si la sesión es válida
+          const response = await fetch('/api/session');
+          const data = await response.json();
+          
+          if (response.ok && data.authenticated) {
+            // Sesión válida, redirigir al dashboard
+            router.push('/dashboard');
+            
+          }
+        }
+      } catch (error) {
+        console.error('Error verificando sesión:', error);
+        // Limpiar cualquier dato potencialmente inválido
+        sessionStorage.removeItem('user');
+        localStorage.removeItem('user');
+      } finally {
+        // Marcar que terminamos de verificar la sesión
+        setCheckingSession(false);
+      }
+
+      // Verificar si el usuario viene de registro exitoso
+      const registered = searchParams.get('registered');
+      if (registered === 'true') {
+        setSuccessMessage('¡Registro exitoso! Por favor inicia sesión con tus nuevas credenciales.');
+      }
+    };
+
+    checkActiveSession();
+  }, [router, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     
-    // Simulación de carga
-    setTimeout(() => {
+    try {
+      // Llamar al endpoint de login
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, rememberMe }),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al iniciar sesión');
+      }
+      
+      // La cookie authToken se establece automáticamente a través de la respuesta
+      // Solo guardamos la información del usuario en localStorage/sessionStorage
+      const storage = rememberMe ? localStorage : sessionStorage;
+      storage.setItem('user', JSON.stringify(data.user));
+      
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 500); // 500ms de espera
+      
+    } catch (error) {
+      console.error('Error de autenticación:', error);
+      setError(error instanceof Error ? error.message : 'Error al iniciar sesión');
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
+
+    // Mostrar loading mientras se verifica la sesión
+  if (checkingSession) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-slate-100 to-slate-200">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-green-500"></div>
+        <p className="mt-4 text-gray-600">Verificando sesión...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-slate-100 to-slate-200 px-4">
@@ -28,6 +111,19 @@ export default function PageLogin() {
               <h1 className="text-3xl font-bold text-gray-800">Iniciar Sesión</h1>
               <p className="text-gray-500 mt-2">Bienvenido a Ayuda al Bolsillo</p>
             </div>
+
+            {/* Mensajes de éxito o error */}
+            {successMessage && (
+              <div className="mb-6 p-3 bg-green-100 text-green-700 rounded-lg text-sm">
+                {successMessage}
+              </div>
+            )}
+            
+            {error && (
+              <div className="mb-6 p-3 bg-red-100 text-red-700 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email */}
@@ -83,6 +179,8 @@ export default function PageLogin() {
                     id="remember-me"
                     name="remember-me"
                     type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
                     className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
                   />
                   <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">

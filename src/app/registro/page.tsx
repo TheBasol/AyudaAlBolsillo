@@ -2,8 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
 
 export default function PageRegistro() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     name: '',
     lastName: '',
@@ -49,20 +52,68 @@ export default function PageRegistro() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const [success, setSuccess] = useState(false);
+  const [apiError, setApiError] = useState('');
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
       return;
     }
-    
+
     setLoading(true);
+    setApiError('');
     
-    // Simulación de registro
-    setTimeout(() => {
+    try {
+      // Preparar los datos a enviar al servidor
+      const userData = {
+        name: formData.name.trim(),
+        lastName: formData.lastName.trim() || null,
+        email: formData.email.trim(),
+        password: formData.password,
+        role: "USER" // Por defecto, todos los registros son usuarios normales
+      };
+      
+      // Realizar la petición al endpoint de creación de usuarios
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al crear la cuenta');
+      }
+      
+      // Registro exitoso
+      setSuccess(true);
+      
+      // Resetear el formulario
+      setFormData({
+        name: '',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+      });
+      
+      // Opcional: Redireccionar al usuario después de unos segundos
+      setTimeout(() => {
+        
+        router.push('/login');
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Error durante el registro:', error);
+      setApiError(error instanceof Error ? error.message : 'Error al crear la cuenta');
+    } finally {
       setLoading(false);
-      // Aquí iría la redirección o mensaje de éxito
-    }, 1500);
+    }
   };
 
   return (
