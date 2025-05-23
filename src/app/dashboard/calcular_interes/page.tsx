@@ -10,7 +10,7 @@ export default function calcular_interes() {
   return (
     <div className="min-h-screen flex justify-start items-center flex-col relative pt-10 -z-1">
       <BackButton></BackButton>
-      <select name="mes" value={calculadora} onChange={(e) => setCalculadora(e.target.value)}>
+      <select name="mes" className="mt-10" value={calculadora} onChange={(e) => setCalculadora(e.target.value)}>
         <option value="InteresCompuesto">Calculadora de interés compuesto</option>
         <option value="AmortizacionCredito">Calculadora de amortización de crédito</option>
       </select>

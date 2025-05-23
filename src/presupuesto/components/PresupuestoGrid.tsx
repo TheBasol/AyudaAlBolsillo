@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Presupuesto } from "@/generated/prisma";
 import { useEffect, useRef, useState } from "react";
 import { copyPp, deletePp, getExcelDataMain, toogleFavorite} from "../utils/PresupuestoUtils";
+import { Modal, ModalProps } from "@/components";
 
 export const PresupuestoGrid = ({ presupuestosItem }: { presupuestosItem: Presupuesto[] }) => {
 
@@ -11,7 +12,7 @@ export const PresupuestoGrid = ({ presupuestosItem }: { presupuestosItem: Presup
   const [position, setPosition] = useState({ x: 0, y: 0 })
   const [id, setId] = useState('')
   const menuRef = useRef<HTMLDivElement>(null)
-
+  const [modalcontroller, setModalController] = useState({modalState: false, message: '', variant: 'success'} as ModalProps)
     
   const handleContextMenu = (e: React.MouseEvent) => {
       const rect = e.currentTarget.getBoundingClientRect();
@@ -56,6 +57,16 @@ export const PresupuestoGrid = ({ presupuestosItem }: { presupuestosItem: Presup
         ))
       }
 
+              <Modal 
+                message={modalcontroller.message} 
+                variant={modalcontroller.variant} 
+                modalState={modalcontroller.modalState}
+                onClose={() => {
+                  // Restablecer el estado del modal después de cerrarse
+                  setModalController(prev => ({ ...prev, modalState: false }));
+                }}
+              />
+
         {visible && (
           <div
             id={id}
@@ -66,10 +77,7 @@ export const PresupuestoGrid = ({ presupuestosItem }: { presupuestosItem: Presup
             <button onClick={() => getExcelDataMain(id)} className="block px-4 py-2 hover:bg-gray-100 w-full text-left">
               Descargar Excel
             </button>
-            <button onClick={() => copyPp(id,setVisible)} className="block px-4 py-2 hover:bg-gray-100 w-full text-left">
-              Duplicar
-            </button>
-            <button onClick={() => deletePp(id,setVisible)} className="block px-4 py-2 hover:bg-gray-100 w-full text-left">
+            <button onClick={() => deletePp(id,setVisible,setModalController)} className="block px-4 py-2 hover:bg-gray-100 w-full text-left">
               Eliminar
             </button>
           </div>

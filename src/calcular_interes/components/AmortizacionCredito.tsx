@@ -326,13 +326,6 @@ export const AmortizacionCredito = () => {
                                 <div className="flex items-center">
                                     <span className="text-xs text-gray-600 mr-2">Exportar como:</span>
                                     <button 
-                                        onClick={exportarPDF}
-                                        className="p-1 text-gray-600 hover:text-gray-900 bg-gray-100 rounded mx-1"
-                                        title="Exportar como PDF"
-                                    >
-                                        PDF
-                                    </button>
-                                    <button 
                                         onClick={exportarCSV}
                                         className="p-1 text-gray-600 hover:text-gray-900 bg-gray-100 rounded mx-1"
                                         title="Exportar como CSV"

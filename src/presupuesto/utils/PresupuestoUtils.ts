@@ -1,6 +1,7 @@
 import { DetallesPresupuesto } from "@prisma/client"
 import { totalCat } from "../interfaces/Presupuesto"
 import { Dispatch, SetStateAction } from "react";
+import { ModalProps } from "@/components";
 
 //interfaces
 export interface GraficoCirculo {
@@ -198,18 +199,26 @@ export const getExcelDataMain = async(id:string) => {
     handleExport(datosPresupuesto,nombre)
 }
 
-export const deletePp = async(id_Pp:string,setVisible: Dispatch<SetStateAction<boolean>>) => {
+export const deletePp = async(id_Pp:string,setVisible: Dispatch<SetStateAction<boolean>>,setModalController:(value: SetStateAction<ModalProps>) => void) => {
     try {
     const res = await fetch('/api/presupuestos/'+id_Pp , {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' }
     })
     if (res.ok) {
-        alert('Presupuesto Eliminado correctamente')
+            setModalController({ 
+            modalState: true, 
+            message: 'Presupuesto Eliminado', 
+            variant: 'success' 
+          });
         setVisible(false);
 
     } else {
-        alert('Error al borrar')
+          setModalController({ 
+            modalState: true, 
+            message: 'Presupuesto no Eliminado', 
+            variant: 'success' 
+          });
     }
     } catch (err) {
     console.error(err)

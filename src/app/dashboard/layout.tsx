@@ -48,7 +48,9 @@ export default function DashboardLayout({children}: { children: React.ReactNode 
 
   // Mostrar pantalla de carga mientras se verifica la sesión
   if (isLoading) {
-    return <p>login...</p>;
+    return               <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-green-500"></div>
+        </div>;
   }
 
   // Solo mostrar el contenido si está autenticado

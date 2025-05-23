@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import {  useEffect, useState } from 'react'
 import { meses, ppEgresos, ppIngresos } from '../utils/PresupuestoUtils'
 import { DetallesPresupuesto } from '@prisma/client'
+import { Modal,ModalProps } from '@/components'
 
 interface PresupuestoDato {
   id: string
@@ -24,12 +25,15 @@ interface Props{
     idTarget?: string
 }
 
+
+
 export const ModalPresupuestoForm = ({textButton,id='',dataPp,nombrePp='', children,idTarget=''}:Props) => {
   const [isOpen, setIsOpen] = useState(false)
   const [nombre, setNombre] = useState('')
   const [datos, setDatos] = useState<PresupuestoDato[]>([{
     id: '',fecha: '', mes: '', tipo: 'Ingreso', categoria: '', concepto: '', presupuesto: 0, monto: 0
   }])
+  const [modalcontroller, setModalController] = useState({modalState: false, message: '', variant: 'success'} as ModalProps)
 
 
   useEffect(() => {
@@ -114,8 +118,6 @@ export const ModalPresupuestoForm = ({textButton,id='',dataPp,nombrePp='', child
       }      
     }
 
-    console.log('body', body);
-
     try {
       const res = await fetch( id === '' ? '/api/presupuestos' : '/api/presupuestos/'+id , {
         method: id === '' ? 'POST': 'PUT',
@@ -123,8 +125,16 @@ export const ModalPresupuestoForm = ({textButton,id='',dataPp,nombrePp='', child
         body: JSON.stringify( body)
       })
       if (res.ok) {
-        alert('Presupuesto guardado correctamente')
+
         setIsOpen(false)
+
+        setTimeout(() => {
+          setModalController({ 
+            modalState: true, 
+            message: 'Presupuesto guardado', 
+            variant: 'success' 
+          });
+        }, 100);
 
         if (id === '') {
           setDatos([{
@@ -133,9 +143,13 @@ export const ModalPresupuestoForm = ({textButton,id='',dataPp,nombrePp='', child
         }
 
       } else {
-        alert('Error al guardar')
+        setIsOpen(false)
+        setModalController({modalState: true, message: 'Error al guardar', variant: 'error'})
+
       }
     } catch (err) {
+      setIsOpen(false)
+      setModalController({modalState: true, message: 'Error al conectar al servidor', variant: 'error'})
       console.error(err)
     }
   }
@@ -148,6 +162,16 @@ export const ModalPresupuestoForm = ({textButton,id='',dataPp,nombrePp='', child
       <div className='' onClick={() => setIsOpen(true)}>
         {children}
       </div>
+
+      <Modal 
+        message={modalcontroller.message} 
+        variant={modalcontroller.variant} 
+        modalState={modalcontroller.modalState}
+        onClose={() => {
+          // Restablecer el estado del modal después de cerrarse
+          setModalController(prev => ({ ...prev, modalState: false }));
+        }}
+      />
 
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
